@@ -1,3 +1,5 @@
 {
-  
+  "gui.jwnsshoppingmod.profile.title": "프로필",
+
+  "jwnsshoppingmod.networking.open_profile_failed": "프로필을 열 수 없습니다: %s"
 }
