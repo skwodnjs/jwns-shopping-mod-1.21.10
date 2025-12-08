@@ -35,7 +35,7 @@ public class ModEvents {
                     "첫 저장입니다."
             );
 
-            ProfileDataStorage.saveProfile(serverPlayer, data);
+            ProfileDataStorage.saveByPlayerName(serverPlayer.level().getServer(), serverPlayer.getDisplayName().getString(), data);
         }
     }
 }

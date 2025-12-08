@@ -1,8 +1,10 @@
 package net.jwn.jwnsshoppingmod.networking;
 
 
+import net.jwn.jwnsinvitationmod.networking.packet.InvitationC2SPacket;
 import net.jwn.jwnsshoppingmod.JWNsMod;
 import net.jwn.jwnsshoppingmod.networking.client.OpenProfileScreenS2CPacketHandler;
+import net.jwn.jwnsshoppingmod.networking.packet.EditCommentC2SPacket;
 import net.jwn.jwnsshoppingmod.networking.packet.OpenProfileScreenS2CPacket;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -19,6 +21,11 @@ public class ModMessages {
                 OpenProfileScreenS2CPacket.TYPE,
                 OpenProfileScreenS2CPacket.STREAM_CODEC,
                 OpenProfileScreenS2CPacket::handle
+        );
+        registrar.playToServer(
+                EditCommentC2SPacket.TYPE,
+                EditCommentC2SPacket.STREAM_CODEC,
+                EditCommentC2SPacket::handle
         );
     }
 

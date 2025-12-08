@@ -3,5 +3,6 @@
   "gui.jwnsshoppingmod.profile.minute": "minute",
   "gui.jwnsshoppingmod.profile.hour": "hour",
 
-  "jwnsshoppingmod.networking.open_profile_failed": "Cannot open the profile: %s"
+  "jwnsshoppingmod.networking.open_profile_failed": "Cannot open the profile: %s",
+  "jwnsshoppingmod.networking.edit_profile_failed": "Cannot edit the profile: %s"
 }

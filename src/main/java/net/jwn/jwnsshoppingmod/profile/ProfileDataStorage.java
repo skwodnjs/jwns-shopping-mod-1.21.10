@@ -7,12 +7,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.UUID;
 
 public class ProfileDataStorage {
     private static final String FOLDER_NAME = "jwnsshoppingmod/profiles";
@@ -27,17 +25,15 @@ public class ProfileDataStorage {
         return worldRoot.resolve(FOLDER_NAME);
     }
 
-    // 플레이어 UUID 기준 파일 경로
+    // 플레이어 파일 경로
     private static Path getProfileFile(MinecraftServer server, String name) {
         return getProfileDir(server).resolve(name + ".json");
     }
 
     // ===== 저장 =====
-    public static void saveProfile(ServerPlayer player, ProfileData data) {
-        MinecraftServer server = player.level().getServer();
-
+    public static void saveByPlayerName(MinecraftServer server, String playerName, ProfileData data) {
         Path dir = getProfileDir(server);
-        Path file = getProfileFile(server, player.getDisplayName().getString());
+        Path file = getProfileFile(server, playerName);
 
         try {
             Files.createDirectories(dir);
@@ -48,24 +44,6 @@ public class ProfileDataStorage {
         } catch (IOException e) {
             // 실제 코드에서는 로그로 남기는 게 좋음
             e.printStackTrace();
-        }
-    }
-
-    // ===== 로드 =====
-    public static ProfileData loadProfile(ServerPlayer player) {
-        MinecraftServer server = player.level().getServer();
-
-        Path file = getProfileFile(server, player.getDisplayName().getString());
-
-        if (!Files.exists(file)) {
-            return null; // 아직 저장된 프로필 없음
-        }
-
-        try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            return GSON.fromJson(reader, ProfileData.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
         }
     }
 

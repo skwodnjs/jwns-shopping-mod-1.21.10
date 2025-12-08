@@ -1,30 +1,32 @@
 package net.jwn.jwnsshoppingmod.screen;
 
 import net.jwn.jwnsshoppingmod.JWNsMod;
+import net.jwn.jwnsshoppingmod.networking.packet.EditCommentC2SPacket;
 import net.jwn.jwnsshoppingmod.profile.ProfileData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProfileScreen extends Screen {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "textures/gui/profile_gui.png");
+public class ProfileEditScreen extends Screen {
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "textures/gui/profile_edit_gui.png");
     private static final ResourceLocation BUTTON = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "button3");
     private static final ResourceLocation BUTTON_PRESSED = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "button3_highlighted");
-    private static final ResourceLocation EDIT_BUTTON = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "edit_button");
-    private static final ResourceLocation EDIT_BUTTON_PRESSED = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "edit_button_highlighted");
     private final ProfileData profileData;
+    private static String comment = "";
 
-    public ProfileScreen(ProfileData profileData) {
+    public ProfileEditScreen(ProfileData profileData) {
         // We use name as the title of the screen
         super(Component.literal(profileData.getName()));
         this.profileData = profileData;
@@ -38,8 +40,6 @@ public class ProfileScreen extends Screen {
     private static final int BUTTON_WIDTH = 90;
     private static final int BUTTON_HEIGHT = 15;
 
-    final int PROFILE_GAP = 57;
-
     int x;
     int y;
     int button_x;
@@ -52,11 +52,6 @@ public class ProfileScreen extends Screen {
         button_x = (this.width - BUTTON_WIDTH) / 2;
         button_y = y + 105;
 
-        ImageButton imageButton1 = new ImageButton(
-                button_x, button_y, BUTTON_WIDTH, BUTTON_HEIGHT, new WidgetSprites(BUTTON, BUTTON_PRESSED),
-                button -> this.onClose());
-        addRenderableWidget(imageButton1);
-
         ImageButton imageButton2 = new ImageButton(
                 button_x, button_y + 18, BUTTON_WIDTH, BUTTON_HEIGHT, new WidgetSprites(BUTTON, BUTTON_PRESSED),
                 button -> this.onClose());
@@ -64,13 +59,23 @@ public class ProfileScreen extends Screen {
 
         ImageButton imageButton3 = new ImageButton(
                 button_x, button_y + 36, BUTTON_WIDTH, BUTTON_HEIGHT, new WidgetSprites(BUTTON, BUTTON_PRESSED),
-                button -> this.onClose());
+                button -> {
+                    assert Minecraft.getInstance().player != null;
+                    EditCommentC2SPacket packet = new EditCommentC2SPacket(profileData.getName(), comment);
+                    ClientPacketDistributor.sendToServer(packet);
+                    this.onClose();
+                });
         addRenderableWidget(imageButton3);
 
-        ImageButton editButton = new ImageButton(
-                x + 94, y + 89, 7, 7, new WidgetSprites(EDIT_BUTTON, EDIT_BUTTON_PRESSED),
-                button -> Minecraft.getInstance().setScreen(new ProfileEditScreen(profileData)));
-        addRenderableWidget(editButton);
+        int startX = x + 10;
+        int startY = y + 53;
+        MultiLineEditBox editBox = MultiLineEditBox.builder().build(
+                this.font, 90, 66, Component.empty()
+        );
+        editBox.setX(startX);
+        editBox.setY(startY);
+        editBox.setValueListener(text -> comment = text);
+        addRenderableWidget(editBox);
     }
 
     @Override
@@ -83,18 +88,12 @@ public class ProfileScreen extends Screen {
 
         super.render(graphics, mouseX, mouseY, partialTicks);
 
-        graphics.drawString(this.font, this.title, x + PROFILE_GAP, y + 12, 0xFF000000, false);
-        graphics.drawString(this.font, Component.literal("LV. " + profileData.getLevel()), x + PROFILE_GAP, y + 23, 0xFF000000, false);
-        graphics.drawString(this.font, Component.literal(profileData.getAlias()), x + PROFILE_GAP, y + 34, 0xFF000000, false);
-        graphics.drawString(this.font, Component.literal(profileData.getCoins() + " COIN"), x + PROFILE_GAP, y + 45, 0xFF000000, false);
-
-        String timeSuffix = Component.translatable("gui.jwnsshoppingmod.profile." + (profileData.getIsMinute() ? "minute" : "hour")).getString();
-        graphics.drawString(this.font, Component.literal(profileData.getTime() + timeSuffix + " 전 접속 종료"), x + 10, y + 57, 0xFF000000, false);
-
         Component text = Component.literal(profileData.getComment());
         int maxWidth = DRAW_WIDTH - 26;
         int startX = x + 13;
-        int startY = y + 73;
+        int startY = y + 24;
+
+        graphics.drawString(this.font, this.title, startX, y + 8, 0xFF000000, false);
 
         List<FormattedCharSequence> lines = wrapByCharacter(text, maxWidth, this.font);
 
@@ -111,11 +110,9 @@ public class ProfileScreen extends Screen {
             );
         }
 
-        Component text1 = Component.literal("방명록 보기");
-        Component text2 = Component.literal("교환 신청");
-        Component text3 = Component.literal("귓속말");
+        Component text2 = Component.literal("나가기");
+        Component text3 = Component.literal("저장하기");
 
-        graphics.drawString(this.font, text1, (this.width - font.width(text1)) / 2, button_y + 3, 0xFF000000, false);
         graphics.drawString(this.font, text2, (this.width - font.width(text2)) / 2, button_y + 21, 0xFF000000, false);
         graphics.drawString(this.font, text3, (this.width - font.width(text3)) / 2, button_y + 39, 0xFF000000, false);
     }
