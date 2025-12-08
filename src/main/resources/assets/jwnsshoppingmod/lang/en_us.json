@@ -1,5 +1,7 @@
 {
   "gui.jwnsshoppingmod.profile.title": "프로필",
+  "gui.jwnsshoppingmod.profile.minute": "minute",
+  "gui.jwnsshoppingmod.profile.hour": "hour",
 
   "jwnsshoppingmod.networking.open_profile_failed": "Cannot open the profile: %s"
 }

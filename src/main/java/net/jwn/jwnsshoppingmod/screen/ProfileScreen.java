@@ -1,7 +1,7 @@
 package net.jwn.jwnsshoppingmod.screen;
 
 import net.jwn.jwnsshoppingmod.JWNsMod;
-import net.minecraft.client.Minecraft;
+import net.jwn.jwnsshoppingmod.util.ProfileDataOld;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
@@ -19,10 +19,12 @@ public class ProfileScreen extends Screen {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "textures/gui/profile_gui.png");
     private static final ResourceLocation BUTTON = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "button3");
     private static final ResourceLocation BUTTON_PRESSED = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "button3_highlighted");
+    private final ProfileDataOld profileData;
 
-    public ProfileScreen(Component title) {
+    public ProfileScreen(ProfileDataOld profileData) {
         // We use name as the title of the screen
-        super(title);
+        super(Component.literal(profileData.name()));
+        this.profileData = profileData;
     }
 
     private static final int IMAGE_WIDTH = 256;
@@ -74,13 +76,14 @@ public class ProfileScreen extends Screen {
         super.render(graphics, mouseX, mouseY, partialTicks);
 
         graphics.drawString(this.font, this.title, x + PROFILE_GAP, y + 12, 0xFF000000, false);
-        graphics.drawString(this.font, Component.literal("LV. 120"), x + PROFILE_GAP, y + 23, 0xFF000000, false);
-        graphics.drawString(this.font, Component.literal("1회차"), x + PROFILE_GAP, y + 34, 0xFF000000, false);
-        graphics.drawString(this.font, Component.literal("99999 COIN"), x + PROFILE_GAP, y + 45, 0xFF000000, false);
+        graphics.drawString(this.font, Component.literal("LV. " + profileData.level()), x + PROFILE_GAP, y + 23, 0xFF000000, false);
+        graphics.drawString(this.font, Component.literal(profileData.alias()), x + PROFILE_GAP, y + 34, 0xFF000000, false);
+        graphics.drawString(this.font, Component.literal(profileData.coins() + " COIN"), x + PROFILE_GAP, y + 45, 0xFF000000, false);
 
-        graphics.drawString(this.font, Component.literal("56시간 전 접속 종료"), x + 10, y + 57, 0xFF000000, false);
+        String timeSuffix = Component.translatable("gui.jwnsshoppingmod.profile." + (profileData.isMinute() ? "minute" : "hour")).getString();
+        graphics.drawString(this.font, Component.literal(profileData.time() + timeSuffix + " 전 접속 종료"), x + 10, y + 57, 0xFF000000, false);
 
-        Component text = Component.literal("안녕하세요, 나재원입니다. 잘부탁드립니다...");
+        Component text = Component.literal(profileData.comment());
         int maxWidth = DRAW_WIDTH - 26;
         int startX = x + 13;
         int startY = y + 73;
@@ -117,26 +120,19 @@ public class ProfileScreen extends Screen {
 
         for (int i = 0; i < raw.length(); i++) {
             char c = raw.charAt(i);
-
             currentLine.append(c);
 
             int width = font.width(currentLine.toString());
             if (width > maxWidth) {
-                // 현재 문자 때문에 오버됐으므로 줄 분리
-                currentLine.deleteCharAt(currentLine.length() - 1); // 마지막 문자 제거
+                currentLine.deleteCharAt(currentLine.length() - 1);
                 result.add(font.split(Component.literal(currentLine.toString()), maxWidth).get(0));
-
-                // 다음 라인은 마지막 문자부터 시작
                 currentLine.setLength(0);
                 currentLine.append(c);
             }
         }
-
-        // 마지막 줄 추가
         if (!currentLine.isEmpty()) {
             result.add(font.split(Component.literal(currentLine.toString()), maxWidth).get(0));
         }
-
         return result;
     }
 }

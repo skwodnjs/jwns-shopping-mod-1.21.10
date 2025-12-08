@@ -1,5 +1,7 @@
 {
   "gui.jwnsshoppingmod.profile.title": "프로필",
+  "gui.jwnsshoppingmod.profile.minute": "분",
+  "gui.jwnsshoppingmod.profile.hour": "시간",
 
   "jwnsshoppingmod.networking.open_profile_failed": "프로필을 열 수 없습니다: %s"
 }

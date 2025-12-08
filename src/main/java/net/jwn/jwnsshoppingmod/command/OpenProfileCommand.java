@@ -18,7 +18,15 @@ public class OpenProfileCommand {
     }
 
     private int execute(CommandContext<CommandSourceStack> context) {
-        OpenProfileScreenS2CPacket packet = new OpenProfileScreenS2CPacket(StringArgumentType.getString(context, "playerName"));
+        OpenProfileScreenS2CPacket packet = new OpenProfileScreenS2CPacket(
+                StringArgumentType.getString(context, "playerName"),
+                10,
+                "서버관리자",
+                99998,
+                23,
+                false,
+                "안녕하세요, 나재원입니다. 잘부탁드립니다..."
+        );
         PacketDistributor.sendToPlayer(Objects.requireNonNull(context.getSource().getPlayer()), packet);
         return 1;
     }
