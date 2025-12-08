@@ -2,7 +2,10 @@ package net.jwn.jwnsshoppingmod.event;
 
 import net.jwn.jwnsinvitationmod.item.ModItems;
 import net.jwn.jwnsshoppingmod.JWNsMod;
+import net.jwn.jwnsshoppingmod.profile.ProfileData;
+import net.jwn.jwnsshoppingmod.profile.ProfileDataStorage;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -19,6 +22,20 @@ public class ModEvents {
 
         if (!player.getInventory().add(stack)) {
             player.displayClientMessage(Component.literal("YOUR INVENTORY IS FULL"), false);
+        }
+
+        if (player instanceof ServerPlayer serverPlayer) {
+            ProfileData data = new ProfileData(
+                    player.getName().getString(),
+                    1,
+                    "No Alias",
+                    0,
+                    10,
+                    true,
+                    "첫 저장입니다."
+            );
+
+            ProfileDataStorage.saveProfile(serverPlayer, data);
         }
     }
 }

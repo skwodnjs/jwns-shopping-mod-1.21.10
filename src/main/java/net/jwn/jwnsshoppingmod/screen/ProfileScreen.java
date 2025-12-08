@@ -1,7 +1,7 @@
 package net.jwn.jwnsshoppingmod.screen;
 
 import net.jwn.jwnsshoppingmod.JWNsMod;
-import net.jwn.jwnsshoppingmod.util.ProfileDataOld;
+import net.jwn.jwnsshoppingmod.profile.ProfileData;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
@@ -19,11 +19,11 @@ public class ProfileScreen extends Screen {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "textures/gui/profile_gui.png");
     private static final ResourceLocation BUTTON = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "button3");
     private static final ResourceLocation BUTTON_PRESSED = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "button3_highlighted");
-    private final ProfileDataOld profileData;
+    private final ProfileData profileData;
 
-    public ProfileScreen(ProfileDataOld profileData) {
+    public ProfileScreen(ProfileData profileData) {
         // We use name as the title of the screen
-        super(Component.literal(profileData.name()));
+        super(Component.literal(profileData.getName()));
         this.profileData = profileData;
     }
 
@@ -76,14 +76,14 @@ public class ProfileScreen extends Screen {
         super.render(graphics, mouseX, mouseY, partialTicks);
 
         graphics.drawString(this.font, this.title, x + PROFILE_GAP, y + 12, 0xFF000000, false);
-        graphics.drawString(this.font, Component.literal("LV. " + profileData.level()), x + PROFILE_GAP, y + 23, 0xFF000000, false);
-        graphics.drawString(this.font, Component.literal(profileData.alias()), x + PROFILE_GAP, y + 34, 0xFF000000, false);
-        graphics.drawString(this.font, Component.literal(profileData.coins() + " COIN"), x + PROFILE_GAP, y + 45, 0xFF000000, false);
+        graphics.drawString(this.font, Component.literal("LV. " + profileData.getLevel()), x + PROFILE_GAP, y + 23, 0xFF000000, false);
+        graphics.drawString(this.font, Component.literal(profileData.getAlias()), x + PROFILE_GAP, y + 34, 0xFF000000, false);
+        graphics.drawString(this.font, Component.literal(profileData.getCoins() + " COIN"), x + PROFILE_GAP, y + 45, 0xFF000000, false);
 
-        String timeSuffix = Component.translatable("gui.jwnsshoppingmod.profile." + (profileData.isMinute() ? "minute" : "hour")).getString();
-        graphics.drawString(this.font, Component.literal(profileData.time() + timeSuffix + " 전 접속 종료"), x + 10, y + 57, 0xFF000000, false);
+        String timeSuffix = Component.translatable("gui.jwnsshoppingmod.profile." + (profileData.getIsMinute() ? "minute" : "hour")).getString();
+        graphics.drawString(this.font, Component.literal(profileData.getTime() + timeSuffix + " 전 접속 종료"), x + 10, y + 57, 0xFF000000, false);
 
-        Component text = Component.literal(profileData.comment());
+        Component text = Component.literal(profileData.getComment());
         int maxWidth = DRAW_WIDTH - 26;
         int startX = x + 13;
         int startY = y + 73;
