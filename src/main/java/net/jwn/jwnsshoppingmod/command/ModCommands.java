@@ -11,6 +11,7 @@ public class ModCommands {
     @SubscribeEvent
     public static void onCommandsRegister(RegisterCommandsEvent event) {
         new OpenProfileCommand(event.getDispatcher());
+        new TestCommand(event.getDispatcher());
         ConfigCommand.register(event.getDispatcher());
     }
 }

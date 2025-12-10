@@ -4,6 +4,7 @@ import net.jwn.jwnsinvitationmod.item.ModItems;
 import net.jwn.jwnsshoppingmod.JWNsMod;
 import net.jwn.jwnsshoppingmod.profile.ProfileData;
 import net.jwn.jwnsshoppingmod.profile.ProfileDataStorage;
+import net.jwn.jwnsshoppingmod.shop.PlayerBlockTimerData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -11,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber(modid = JWNsMod.MOD_ID)
 public class ModEvents {
@@ -36,6 +38,18 @@ public class ModEvents {
             );
 
             ProfileDataStorage.saveByPlayerName(serverPlayer.level().getServer(), serverPlayer.getDisplayName().getString(), data);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerTickEvent(PlayerTickEvent.Pre event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            PlayerBlockTimerData data = PlayerBlockTimerData.get(serverPlayer.level());
+            if (data.getTimer(serverPlayer) % 20 == 0) {
+                serverPlayer.displayClientMessage(Component.literal(data.getTimer(serverPlayer) / 20 + " sec"), false);
+            }
+            if (data.getTimer(serverPlayer) == 0) data.resetBlocklist(serverPlayer);
+            data.tickPlayer(serverPlayer);
         }
     }
 }

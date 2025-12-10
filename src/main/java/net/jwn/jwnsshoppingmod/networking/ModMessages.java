@@ -1,7 +1,6 @@
 package net.jwn.jwnsshoppingmod.networking;
 
 
-import net.jwn.jwnsinvitationmod.networking.packet.InvitationC2SPacket;
 import net.jwn.jwnsshoppingmod.JWNsMod;
 import net.jwn.jwnsshoppingmod.networking.client.OpenProfileScreenS2CPacketHandler;
 import net.jwn.jwnsshoppingmod.networking.packet.EditCommentC2SPacket;
