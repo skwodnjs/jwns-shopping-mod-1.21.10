@@ -67,16 +67,4 @@ public class ProfileDataStorage {
             return null;
         }
     }
-
-    // ===== 삭제 (선택) =====
-    public static void deleteProfile(ServerPlayer player) {
-        MinecraftServer server = player.level().getServer();
-
-        Path file = getProfileFile(server, player.getDisplayName().getString());
-        try {
-            Files.deleteIfExists(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }

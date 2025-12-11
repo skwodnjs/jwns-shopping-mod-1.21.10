@@ -1,8 +1,12 @@
 {
   "gui.jwnsshoppingmod.profile.title": "프로필",
+  "gui.jwnsshoppingmod.profile.online": "접속중",
   "gui.jwnsshoppingmod.profile.minute": "분",
   "gui.jwnsshoppingmod.profile.hour": "시간",
 
   "jwnsshoppingmod.networking.open_profile_failed": "프로필을 열 수 없습니다: %s",
-  "jwnsshoppingmod.networking.edit_profile_failed": "프로필을 수정할 수 없습니다: %s"
+  "jwnsshoppingmod.networking.edit_profile_failed": "프로필을 수정할 수 없습니다: %s",
+  "jwnsshoppingmod.networking.set_coin": "코인을 %d 으로 설정했습니다.",
+  "jwnsshoppingmod.networking.add_coin": "코인을 %d 만큼 추가하였습니다.",
+  "jwnsshoppingmod.networking.get_coin": "현재 코인을 %d 만큼 보유하고 있습니다."
 }

@@ -13,8 +13,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ProfileScreen extends Screen {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "textures/gui/profile_gui.png");
@@ -23,11 +27,13 @@ public class ProfileScreen extends Screen {
     private static final ResourceLocation EDIT_BUTTON = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "edit_button");
     private static final ResourceLocation EDIT_BUTTON_PRESSED = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "edit_button_highlighted");
     private final ProfileData profileData;
+    private final boolean isOnline;
 
-    public ProfileScreen(ProfileData profileData) {
+    public ProfileScreen(ProfileData profileData, boolean isOnline) {
         // We use name as the title of the screen
         super(Component.literal(profileData.getName()));
         this.profileData = profileData;
+        this.isOnline = isOnline;
     }
 
     private static final int IMAGE_WIDTH = 256;
@@ -67,10 +73,13 @@ public class ProfileScreen extends Screen {
                 button -> this.onClose());
         addRenderableWidget(imageButton3);
 
-        ImageButton editButton = new ImageButton(
-                x + 94, y + 89, 7, 7, new WidgetSprites(EDIT_BUTTON, EDIT_BUTTON_PRESSED),
-                button -> Minecraft.getInstance().setScreen(new ProfileEditScreen(profileData)));
-        addRenderableWidget(editButton);
+        assert Minecraft.getInstance().player != null;
+        if (Objects.equals(profileData.getName(), Minecraft.getInstance().player.getDisplayName().getString())) {
+            ImageButton editButton = new ImageButton(
+                    x + 94, y + 89, 7, 7, new WidgetSprites(EDIT_BUTTON, EDIT_BUTTON_PRESSED),
+                    button -> Minecraft.getInstance().setScreen(new ProfileEditScreen(profileData)));
+            addRenderableWidget(editButton);
+        }
     }
 
     @Override
@@ -88,8 +97,21 @@ public class ProfileScreen extends Screen {
         graphics.drawString(this.font, Component.literal(profileData.getAlias()), x + PROFILE_GAP, y + 34, 0xFF000000, false);
         graphics.drawString(this.font, Component.literal(profileData.getCoins() + " COIN"), x + PROFILE_GAP, y + 45, 0xFF000000, false);
 
-        String timeSuffix = Component.translatable("gui.jwnsshoppingmod.profile." + (profileData.getIsMinute() ? "minute" : "hour")).getString();
-        graphics.drawString(this.font, Component.literal(profileData.getTime() + timeSuffix + " 전 접속 종료"), x + 10, y + 57, 0xFF000000, false);
+        Instant now = Instant.now();
+        Duration duration = Duration.between(Instant.ofEpochMilli(profileData.getTimeMillis()), now);
+
+        String timeSuffix;
+        int timeGap;
+        if (duration.toMinutes() <= 60) {
+            timeSuffix = Component.translatable("gui.jwnsshoppingmod.profile.minute").getString();
+            timeGap = (int) duration.toMinutes();
+        } else {
+            timeSuffix = Component.translatable("gui.jwnsshoppingmod.profile.hour").getString();
+            timeGap = (int) duration.toHours();
+        }
+
+        graphics.drawString(this.font, isOnline ? Component.translatable("gui.jwnsshoppingmod.profile.online") :
+                Component.literal(timeGap + timeSuffix + " 전 접속 종료"), x + 10, y + 57, 0xFF000000, false);
 
         Component text = Component.literal(profileData.getComment());
         int maxWidth = DRAW_WIDTH - 26;

@@ -9,7 +9,11 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record OpenProfileScreenS2CPacket(String name, int level, String alias, int coins, int time, Boolean isMinute, String comment) implements CustomPacketPayload {
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
+public record OpenProfileScreenS2CPacket(String name, int level, String alias, int coins, Long timeMillis, boolean isOnline, String comment) implements CustomPacketPayload {
     public static final Type<OpenProfileScreenS2CPacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "open_profile_packet"));
 
@@ -18,8 +22,8 @@ public record OpenProfileScreenS2CPacket(String name, int level, String alias, i
             ByteBufCodecs.VAR_INT, OpenProfileScreenS2CPacket::level,
             ByteBufCodecs.STRING_UTF8, OpenProfileScreenS2CPacket::alias,
             ByteBufCodecs.VAR_INT, OpenProfileScreenS2CPacket::coins,
-            ByteBufCodecs.VAR_INT, OpenProfileScreenS2CPacket::time,
-            ByteBufCodecs.BOOL, OpenProfileScreenS2CPacket::isMinute,
+            ByteBufCodecs.LONG, OpenProfileScreenS2CPacket::timeMillis,
+            ByteBufCodecs.BOOL, OpenProfileScreenS2CPacket::isOnline,
             ByteBufCodecs.STRING_UTF8, OpenProfileScreenS2CPacket::comment,
             OpenProfileScreenS2CPacket::new
     );

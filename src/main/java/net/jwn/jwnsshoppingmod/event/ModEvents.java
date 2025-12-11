@@ -5,6 +5,7 @@ import net.jwn.jwnsshoppingmod.JWNsMod;
 import net.jwn.jwnsshoppingmod.profile.ProfileData;
 import net.jwn.jwnsshoppingmod.profile.ProfileDataStorage;
 import net.jwn.jwnsshoppingmod.shop.PlayerBlockTimerData;
+import net.jwn.jwnsshoppingmod.shop.PlayerCoinData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -27,17 +28,33 @@ public class ModEvents {
         }
 
         if (player instanceof ServerPlayer serverPlayer) {
-            ProfileData data = new ProfileData(
+            ProfileData data = ProfileDataStorage.loadByPlayerName(serverPlayer.level().getServer(), event.getEntity().getDisplayName().getString());
+            if (data == null) {
+                ProfileData newData = new ProfileData(
                     player.getName().getString(),
                     1,
                     "No Alias",
                     0,
-                    10,
-                    true,
-                    "첫 저장입니다."
-            );
+                        System.currentTimeMillis(),
+                    "자기소개를 입력해주세요!"
+                );
+                ProfileDataStorage.saveByPlayerName(serverPlayer.level().getServer(), serverPlayer.getDisplayName().getString(), newData);
+            }
+        }
+    }
 
-            ProfileDataStorage.saveByPlayerName(serverPlayer.level().getServer(), serverPlayer.getDisplayName().getString(), data);
+    @SubscribeEvent
+    public static void onPlayerLoggedOutEvent(PlayerEvent.PlayerLoggedOutEvent event) {
+        Player player = event.getEntity();
+
+        if (player instanceof ServerPlayer serverPlayer) {
+            ProfileData profileData = ProfileDataStorage.loadByPlayerName(serverPlayer.level().getServer(), event.getEntity().getDisplayName().getString());
+            PlayerCoinData coinData = PlayerCoinData.get(serverPlayer.level());
+            assert profileData != null;
+            profileData.setTime(System.currentTimeMillis());
+            profileData.setLevel(player.experienceLevel);
+            profileData.setCoins(coinData.getCoins(serverPlayer));
+            ProfileDataStorage.saveByPlayerName(serverPlayer.level().getServer(), serverPlayer.getDisplayName().getString(), profileData);
         }
     }
 
@@ -45,9 +62,6 @@ public class ModEvents {
     public static void onPlayerTickEvent(PlayerTickEvent.Pre event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             PlayerBlockTimerData data = PlayerBlockTimerData.get(serverPlayer.level());
-            if (data.getTimer(serverPlayer) % 20 == 0) {
-                serverPlayer.displayClientMessage(Component.literal(data.getTimer(serverPlayer) / 20 + " sec"), false);
-            }
             if (data.getTimer(serverPlayer) == 0) data.resetBlocklist(serverPlayer);
             data.tickPlayer(serverPlayer);
         }

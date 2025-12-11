@@ -5,17 +5,15 @@ public class ProfileData {
     private int level;
     private String alias;
     private int coins;
-    private int time;
-    private Boolean isMinute;
+    private Long timeMillis;
     private String comment;
 
-    public ProfileData(String name, int level, String alias, int coins, int time, Boolean isMinute, String comment) {
+    public ProfileData(String name, int level, String alias, int coins, Long timeMillis, String comment) {
         this.name = name;
         this.level = level;
         this.alias = alias;
         this.coins = coins;
-        this.time = time;
-        this.isMinute = isMinute;
+        this.timeMillis = timeMillis;
         this.comment = comment;
     }
 
@@ -52,19 +50,11 @@ public class ProfileData {
     }
 
     // --- time ---
-    public int getTime() {
-        return this.time;
+    public Long getTimeMillis() {
+        return this.timeMillis;
     }
-    public void setTime(int time) {
-        this.time = time;
-    }
-
-    // --- isMinute ---
-    public Boolean getIsMinute() {
-        return this.isMinute;
-    }
-    public void setIsMinute(Boolean isMinute) {
-        this.isMinute = isMinute;
+    public void setTime(Long timeMillis) {
+        this.timeMillis = timeMillis;
     }
 
     // --- comment ---

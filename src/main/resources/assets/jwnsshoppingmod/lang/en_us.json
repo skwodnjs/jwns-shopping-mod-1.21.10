@@ -1,8 +1,13 @@
 {
-  "gui.jwnsshoppingmod.profile.title": "프로필",
+  "gui.jwnsshoppingmod.profile.title": "Profile",
+  "gui.jwnsshoppingmod.profile.online": "online",
   "gui.jwnsshoppingmod.profile.minute": "minute",
   "gui.jwnsshoppingmod.profile.hour": "hour",
 
   "jwnsshoppingmod.networking.open_profile_failed": "Cannot open the profile: %s",
-  "jwnsshoppingmod.networking.edit_profile_failed": "Cannot edit the profile: %s"
+  "jwnsshoppingmod.networking.edit_profile_failed": "Cannot edit the profile: %s",
+  "jwnsshoppingmod.networking.set_coin": "Your coins have been set to %d.",
+  "jwnsshoppingmod.networking.add_coin": "You have received %d additional coins.",
+  "jwnsshoppingmod.networking.get_coin": "You currently have %d coins."
+
 }
