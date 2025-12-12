@@ -9,7 +9,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 public class OpenShopCommand {
@@ -27,7 +26,8 @@ public class OpenShopCommand {
 
         OpenShopScreenS2CPacket packet = new OpenShopScreenS2CPacket(
                 coinData.getCoins(Objects.requireNonNull(context.getSource().getPlayer())),
-                blockTimerData.getShopItems(context.getSource().getPlayer())
+                blockTimerData.getShopItems(context.getSource().getPlayer()),
+                blockTimerData.getTimer(context.getSource().getPlayer())
         );
         PacketDistributor.sendToPlayer(Objects.requireNonNull(context.getSource().getPlayer()), packet);
         return 1;

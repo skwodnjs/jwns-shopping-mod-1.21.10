@@ -12,7 +12,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import java.util.ArrayList;
 import java.util.List;
 
-public record OpenShopScreenS2CPacket(int coin, List<ShopItem> shopItems) implements CustomPacketPayload {
+public record OpenShopScreenS2CPacket(int coin, List<ShopItem> shopItems, int time) implements CustomPacketPayload {
     public static final Type<OpenShopScreenS2CPacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "open_shop_packet"));
 
@@ -27,6 +27,7 @@ public record OpenShopScreenS2CPacket(int coin, List<ShopItem> shopItems) implem
     public static final StreamCodec<ByteBuf, OpenShopScreenS2CPacket> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, OpenShopScreenS2CPacket::coin,
             SHOP_ITEM_LIST_CODEC, OpenShopScreenS2CPacket::shopItems,
+            ByteBufCodecs.INT, OpenShopScreenS2CPacket::time,
             OpenShopScreenS2CPacket::new
     );
 

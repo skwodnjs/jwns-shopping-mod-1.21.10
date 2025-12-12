@@ -1,7 +1,9 @@
 package net.jwn.jwnsshoppingmod.screen;
 
 import net.jwn.jwnsshoppingmod.JWNsMod;
+import net.jwn.jwnsshoppingmod.shop.PlayerBlockTimerData;
 import net.jwn.jwnsshoppingmod.shop.ShopItem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
@@ -35,11 +37,13 @@ public class ShopScreen extends Screen {
     private static final int VISIBLE = 4;
 
     private final int coin;
+    private int tick;
 
-    public ShopScreen(int coin, List<ShopItem> shopItems) {
+    public ShopScreen(int coin, List<ShopItem> shopItems, int time) {
         super(Component.translatable("gui.jwnsshoppingmod.shop.title"));
         this.coin = coin;
         this.shopItems = shopItems;
+        this.tick = PlayerBlockTimerData.RESET_TIMER - time;
         updateDisplayItems();
     }
 
@@ -83,7 +87,13 @@ public class ShopScreen extends Screen {
 
         ImageButton buyButton = new ImageButton(
                 x + 108, y + 142, BUY_WIDTH, BUY_HEIGHT, new WidgetSprites(BUY_BUTTON, BUY_BUTTON_HIGHLIGHTED),
-                button -> {});
+                button -> {
+                    if (tick == 0) {
+                        assert Minecraft.getInstance().player != null;
+                        Minecraft.getInstance().player.displayClientMessage(Component.translatable("gui.jwnsshoppingmod.shop.reopen"), false);
+                        onClose();
+                    }
+                });
         addRenderableWidget(buyButton);
 
         ImageButton minusButton = new ImageButton(
@@ -121,11 +131,22 @@ public class ShopScreen extends Screen {
 //            if (isMouseOver(x, y, 16, 16, mouseX, mouseY)) {
 //                graphics.renderTooltip(this.font, stack, mouseX, mouseY);
 //            }
+            graphics.drawString(this.font, stack.getItemName(), x + 36, y + 23 + i * 27, 0xFF000000, false);
+            graphics.drawString(this.font, Component.literal("3/" + displayShopItems.get(i).maxPurchase()), x + 36, y + 33 + i * 27, 0xFF000000, false);
         }
 
         graphics.drawString(this.font, this.title, x + 8, y + 8, 0xFF000000, false);
-        graphics.drawString(this.font, Component.literal("항목이름"), x + 36, y + 23, 0xFF000000, false);
-        graphics.drawString(this.font, Component.literal("3 / 10"), x + 36, y + 33, 0xFF000000, false);
+
+        int totalSeconds = tick / 20;
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
+        String text1;
+        if (minutes > 0) {
+            text1 = String.format("%d분 %d초 후 상점 초기화", minutes, seconds);
+        } else {
+            text1 = String.format("%d초 후 상점 초기화", seconds);
+        }
+        graphics.drawString(this.font, Component.literal(text1), x + 60, y + 8, 0xFF000000, false);
 
         String text = NumberFormat.getInstance(Locale.US).format(coin);
         graphics.drawString(this.font, Component.literal(text), x + 68, y + 130, 0xFF000000, false);
@@ -155,4 +176,13 @@ public class ShopScreen extends Screen {
         return mouseX >= listX && mouseX < listX + listW && mouseY >= listY && mouseY < listY + listH;
     }
 
+    @Override
+    public void tick() {
+        if (tick > 0) tick -= 1;
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
 }

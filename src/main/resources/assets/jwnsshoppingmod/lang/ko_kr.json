@@ -4,6 +4,7 @@
   "gui.jwnsshoppingmod.profile.online": "접속중",
   "gui.jwnsshoppingmod.profile.minute": "분",
   "gui.jwnsshoppingmod.profile.hour": "시간",
+  "gui.jwnsshoppingmod.shop.reopen": "상점 목록이 초기화되었습니다. 상점을 다시 열어주세요.",
 
   "jwnsshoppingmod.networking.open_shop_failed": "상점을 열 수 없습니다: %s",
   "jwnsshoppingmod.networking.open_profile_failed": "프로필을 열 수 없습니다: %s",

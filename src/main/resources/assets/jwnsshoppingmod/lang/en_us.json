@@ -4,6 +4,7 @@
   "gui.jwnsshoppingmod.profile.online": "online",
   "gui.jwnsshoppingmod.profile.minute": "minute",
   "gui.jwnsshoppingmod.profile.hour": "hour",
+  "gui.jwnsshoppingmod.shop.reopen": "The shop list has been refreshed. Please reopen the shop.",
 
   "jwnsshoppingmod.networking.open_shop_failed": "Cannot open the shop: %s",
   "jwnsshoppingmod.networking.open_profile_failed": "Cannot open the profile: %s",
