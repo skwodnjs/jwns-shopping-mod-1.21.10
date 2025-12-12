@@ -1,9 +1,11 @@
 {
   "gui.jwnsshoppingmod.profile.title": "Profile",
+  "gui.jwnsshoppingmod.shop.title": "Shop",
   "gui.jwnsshoppingmod.profile.online": "online",
   "gui.jwnsshoppingmod.profile.minute": "minute",
   "gui.jwnsshoppingmod.profile.hour": "hour",
 
+  "jwnsshoppingmod.networking.open_shop_failed": "Cannot open the shop: %s",
   "jwnsshoppingmod.networking.open_profile_failed": "Cannot open the profile: %s",
   "jwnsshoppingmod.networking.edit_profile_failed": "Cannot edit the profile: %s",
   "jwnsshoppingmod.networking.set_coin": "Your coins have been set to %d.",
