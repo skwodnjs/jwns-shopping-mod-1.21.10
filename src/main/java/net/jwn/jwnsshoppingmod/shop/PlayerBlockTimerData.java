@@ -3,12 +3,11 @@ package net.jwn.jwnsshoppingmod.shop;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
@@ -17,29 +16,40 @@ import java.util.*;
 public class PlayerBlockTimerData extends SavedData {
     public static final int RESET_TIMER = 20 * 60 * 20; // 24000
 
-    private static final Map<Block, Integer> SHOP_BLOCKS =
-            Map.ofEntries(
-                    Map.entry(Blocks.DIAMOND_BLOCK, 64),
-                    Map.entry(Blocks.GOLD_BLOCK, 64),
-                    Map.entry(Blocks.IRON_BLOCK, 64),
-                    Map.entry(Blocks.COAL_BLOCK, 64),
-                    Map.entry(Blocks.EMERALD_BLOCK, 64),
-                    Map.entry(Blocks.LAPIS_BLOCK, 64),
-                    Map.entry(Blocks.REDSTONE_BLOCK, 64),
-                    Map.entry(Blocks.COPPER_BLOCK, 64),
-                    Map.entry(Blocks.QUARTZ_BLOCK, 64),
-                    Map.entry(Blocks.AMETHYST_BLOCK, 64),
-                    Map.entry(Blocks.OAK_LOG, 64),
-                    Map.entry(Blocks.SPRUCE_LOG, 64),
-                    Map.entry(Blocks.BIRCH_LOG, 64),
-                    Map.entry(Blocks.JUNGLE_LOG, 64),
-                    Map.entry(Blocks.ACACIA_LOG, 64),
-                    Map.entry(Blocks.DARK_OAK_LOG, 64),
-                    Map.entry(Blocks.MANGROVE_LOG, 64),
-                    Map.entry(Blocks.CHERRY_LOG, 64),
-                    Map.entry(Blocks.BAMBOO_BLOCK, 64),
-                    Map.entry(Blocks.STONE, 64)
-            );
+    private static final List<ShopItem> SHOP_ITEMS = List.of(
+            // 고가 / 희귀 자원
+            new ShopItem(Items.DIAMOND_BLOCK,   64, 50, 2),
+            new ShopItem(Items.EMERALD_BLOCK,   64, 50, 2),
+            new ShopItem(Items.AMETHYST_BLOCK,  64, 40, 3),
+
+            // 중상급 광물
+            new ShopItem(Items.GOLD_BLOCK,      64, 40, 3),
+            new ShopItem(Items.IRON_BLOCK,      64, 30, 5),
+            new ShopItem(Items.COPPER_BLOCK,    64, 20, 7),
+
+            // 중급 자원
+            new ShopItem(Items.LAPIS_BLOCK,     64, 30, 5),
+            new ShopItem(Items.REDSTONE_BLOCK,  64, 20, 7),
+            new ShopItem(Items.QUARTZ_BLOCK,    64, 20, 7),
+
+            // 연료 / 기본 자원
+            new ShopItem(Items.COAL_BLOCK,      64, 10, 9),
+            new ShopItem(Items.STONE,           64, 10, 9),
+
+            // 목재류 (공급 많음)
+            new ShopItem(Items.OAK_LOG,          64, 10, 9),
+            new ShopItem(Items.SPRUCE_LOG,       64, 10, 9),
+            new ShopItem(Items.BIRCH_LOG,        64, 10, 9),
+            new ShopItem(Items.JUNGLE_LOG,       64, 10, 9),
+            new ShopItem(Items.ACACIA_LOG,       64, 10, 9),
+            new ShopItem(Items.DARK_OAK_LOG,     64, 10, 9),
+            new ShopItem(Items.MANGROVE_LOG,     64, 20, 7),
+            new ShopItem(Items.CHERRY_LOG,       64, 20, 7),
+
+            // 특수 자원
+            new ShopItem(Items.BAMBOO_BLOCK,    64, 20, 6)
+    );
+
 
     public static final SavedDataType<PlayerBlockTimerData> TYPE =
         new SavedDataType<>(
@@ -64,32 +74,32 @@ public class PlayerBlockTimerData extends SavedData {
     }
     public static class PlayerEntry {
         private int timer;
-        private Block block1;
-        private Block block2;
-        private Block block3;
-        private Block block4;
-        private Block block5;
+        private ShopItem item1;
+        private ShopItem item2;
+        private ShopItem item3;
+        private ShopItem item4;
+        private ShopItem item5;
 
         public static final Codec<PlayerEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("timer").forGetter(e -> e.timer),
-            BuiltInRegistries.BLOCK.byNameCodec().fieldOf("block1").forGetter(e -> e.block1),
-            BuiltInRegistries.BLOCK.byNameCodec().fieldOf("block2").forGetter(e -> e.block2),
-            BuiltInRegistries.BLOCK.byNameCodec().fieldOf("block3").forGetter(e -> e.block3),
-            BuiltInRegistries.BLOCK.byNameCodec().fieldOf("block4").forGetter(e -> e.block4),
-            BuiltInRegistries.BLOCK.byNameCodec().fieldOf("block5").forGetter(e -> e.block5)
+                ShopItem.CODEC.fieldOf("item1").forGetter(e -> e.item1),
+                ShopItem.CODEC.fieldOf("item2").forGetter(e -> e.item2),
+                ShopItem.CODEC.fieldOf("item3").forGetter(e -> e.item3),
+                ShopItem.CODEC.fieldOf("item4").forGetter(e -> e.item4),
+                ShopItem.CODEC.fieldOf("item5").forGetter(e -> e.item5)
         ).apply(instance, PlayerEntry::new));
 
-        public PlayerEntry(int timer, Block block1, Block block2, Block block3, Block block4, Block block5) {
+        public PlayerEntry(int timer, ShopItem item1, ShopItem item2, ShopItem item3, ShopItem item4, ShopItem item5) {
             this.timer = timer;
-            this.block1 = block1;
-            this.block2 = block2;
-            this.block3 = block3;
-            this.block4 = block4;
-            this.block5 = block5;
+            this.item1 = item1;
+            this.item2 = item2;
+            this.item3 = item3;
+            this.item4 = item4;
+            this.item5 = item5;
         }
 
         public PlayerEntry() {
-            this(0, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR);
+            this(0, ShopItem.empty(), ShopItem.empty(), ShopItem.empty(), ShopItem.empty(), ShopItem.empty());
         }
     }
 
@@ -108,7 +118,7 @@ public class PlayerBlockTimerData extends SavedData {
 
         if (entry.timer >= RESET_TIMER) {
             entry.timer = 0;
-            resetBlocklist(player);
+            resetShopItems(player);
         }
 
         setDirty();
@@ -118,24 +128,24 @@ public class PlayerBlockTimerData extends SavedData {
         return getOrCreateEntry(player).timer;
     }
 
-    public void resetBlocklist(ServerPlayer player) {
+    public void resetShopItems(ServerPlayer player) {
         PlayerEntry entry = getOrCreateEntry(player);
 
-        List<Block> pool = new ArrayList<>(SHOP_BLOCKS.keySet());
+        List<ShopItem> pool = new ArrayList<>(SHOP_ITEMS);
         RandomSource random = player.getRandom();
 
-        entry.block1 = pool.get(random.nextInt(pool.size()));
-        entry.block2 = pool.get(random.nextInt(pool.size()));
-        entry.block3 = pool.get(random.nextInt(pool.size()));
-        entry.block4 = pool.get(random.nextInt(pool.size()));
-        entry.block5 = pool.get(random.nextInt(pool.size()));
+        entry.item1 = pool.get(random.nextInt(pool.size()));
+        entry.item2 = pool.get(random.nextInt(pool.size()));
+        entry.item3 = pool.get(random.nextInt(pool.size()));
+        entry.item4 = pool.get(random.nextInt(pool.size()));
+        entry.item5 = pool.get(random.nextInt(pool.size()));
 
         setDirty();
     }
 
-    public List<Block> getBlocks(ServerPlayer player) {
+    public List<ShopItem> getShopItems(ServerPlayer player) {
         PlayerEntry e = getOrCreateEntry(player);
-        return List.of(e.block1, e.block2, e.block3, e.block4, e.block5);
+        return List.of(e.item1, e.item2, e.item3, e.item4, e.item5);
     }
 
 }

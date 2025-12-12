@@ -62,7 +62,7 @@ public class ModEvents {
     public static void onPlayerTickEvent(PlayerTickEvent.Pre event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             PlayerBlockTimerData data = PlayerBlockTimerData.get(serverPlayer.level());
-            if (data.getTimer(serverPlayer) == 0) data.resetBlocklist(serverPlayer);
+            if (data.getTimer(serverPlayer) == 0) data.resetShopItems(serverPlayer);
             data.tickPlayer(serverPlayer);
         }
     }

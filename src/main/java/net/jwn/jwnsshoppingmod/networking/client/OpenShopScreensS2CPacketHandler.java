@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 public class OpenShopScreensS2CPacketHandler {
     public static void handle(final OpenShopScreenS2CPacket data, final IPayloadContext context) {
         context.enqueueWork(() -> {
-            Minecraft.getInstance().setScreen(new ShopScreen(data.coin()));
+            Minecraft.getInstance().setScreen(new ShopScreen(data.coin(), data.shopItems()));
         }).exceptionally(e -> {
             context.disconnect(Component.translatable("jwnsshoppingmod.networking.open_shop_failed", e.getMessage()));
             return null;

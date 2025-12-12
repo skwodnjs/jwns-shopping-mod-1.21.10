@@ -1,17 +1,19 @@
 package net.jwn.jwnsshoppingmod.screen;
 
 import net.jwn.jwnsshoppingmod.JWNsMod;
-import net.minecraft.client.Minecraft;
+import net.jwn.jwnsshoppingmod.shop.ShopItem;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class ShopScreen extends Screen {
@@ -26,11 +28,19 @@ public class ShopScreen extends Screen {
     private static final ResourceLocation MINUS_BUTTON_HIGHLIGHTED = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "minus_button_highlighted");
 
     private static final ResourceLocation COIN = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "coin");
-    private int coin;
 
-    public ShopScreen(int coin) {
+    private final List<ShopItem> shopItems;
+    private final List<ShopItem> displayShopItems = new ArrayList<>();
+    private int startIndex = 0;
+    private static final int VISIBLE = 4;
+
+    private final int coin;
+
+    public ShopScreen(int coin, List<ShopItem> shopItems) {
         super(Component.translatable("gui.jwnsshoppingmod.shop.title"));
         this.coin = coin;
+        this.shopItems = shopItems;
+        updateDisplayItems();
     }
 
     private static final int IMAGE_WIDTH = 256;
@@ -47,6 +57,18 @@ public class ShopScreen extends Screen {
 
     private int x;
     private int y;
+
+    private void updateDisplayItems() {
+        displayShopItems.clear();
+
+        int n = shopItems.size();
+        if (n == 0) return;
+
+        startIndex = Math.max(0, Math.min(startIndex, Math.max(0, n - VISIBLE)));
+
+        int end = Math.min(n, startIndex + VISIBLE);
+        displayShopItems.addAll(shopItems.subList(startIndex, end));
+    }
 
     @Override
     protected void init() {
@@ -66,12 +88,16 @@ public class ShopScreen extends Screen {
 
         ImageButton minusButton = new ImageButton(
                 x + 13, y + 151, 7, 7, new WidgetSprites(MINUS_BUTTON, MINUS_BUTTON_HIGHLIGHTED),
-                button -> count--);
+                button -> {
+                    count--;
+                });
         addRenderableWidget(minusButton);
 
         ImageButton plusButton = new ImageButton(
                 x + 34, y + 151, 7, 7, new WidgetSprites(PLUS_BUTTON, PLUS_BUTTON_HIGHLIGHTED),
-                button -> count++);
+                button -> {
+                    count++;
+                });
         addRenderableWidget(plusButton);
     }
 
@@ -88,6 +114,15 @@ public class ShopScreen extends Screen {
 
         super.render(graphics, mouseX, mouseY, partialTicks);
 
+        for (int i = 0; i < 4; i++) {
+            ItemStack stack = new ItemStack(displayShopItems.get(i).item(), displayShopItems.get(i).bundleSize());
+            graphics.renderItem(stack, x + 14, y + 24 + i * 27);
+            graphics.renderItemDecorations(this.font, stack, x + 14, y + 24 + i * 27);
+//            if (isMouseOver(x, y, 16, 16, mouseX, mouseY)) {
+//                graphics.renderTooltip(this.font, stack, mouseX, mouseY);
+//            }
+        }
+
         graphics.drawString(this.font, this.title, x + 8, y + 8, 0xFF000000, false);
         graphics.drawString(this.font, Component.literal("항목이름"), x + 36, y + 23, 0xFF000000, false);
         graphics.drawString(this.font, Component.literal("3 / 10"), x + 36, y + 33, 0xFF000000, false);
@@ -96,4 +131,28 @@ public class ShopScreen extends Screen {
         graphics.drawString(this.font, Component.literal(text), x + 68, y + 130, 0xFF000000, false);
         graphics.drawString(this.font, Component.literal(String.valueOf(count)), x + 27 - this.font.width(String.valueOf(count)) / 2, y + 150, 0xFF000000, false);
     }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
+        if (!isMouseOverListArea(mouseX, mouseY)) return super.mouseScrolled(mouseX, mouseY, deltaX, deltaY);
+
+        int n = shopItems.size();
+        int maxStart = Math.max(0, n - VISIBLE);
+        if (maxStart == 0) return true;
+
+        int dir = deltaY > 0 ? -1 : 1;
+        startIndex = Math.max(0, Math.min(startIndex + dir, maxStart));
+
+        updateDisplayItems();
+        return true;
+    }
+
+    private boolean isMouseOverListArea(double mouseX, double mouseY) {
+        int listX = x + 8;
+        int listY = y + 20;
+        int listW = 143;
+        int listH = 106;
+        return mouseX >= listX && mouseX < listX + listW && mouseY >= listY && mouseY < listY + listH;
+    }
+
 }
