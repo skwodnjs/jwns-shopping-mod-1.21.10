@@ -61,7 +61,7 @@ public class ProfileEditScreen extends Screen {
                 button_x, button_y + 36, BUTTON_WIDTH, BUTTON_HEIGHT, new WidgetSprites(BUTTON, BUTTON_PRESSED),
                 button -> {
                     assert Minecraft.getInstance().player != null;
-                    EditCommentC2SPacket packet = new EditCommentC2SPacket(profileData.getName(), comment);
+                    EditCommentC2SPacket packet = new EditCommentC2SPacket(comment);
                     ClientPacketDistributor.sendToServer(packet);
                     this.onClose();
                 });

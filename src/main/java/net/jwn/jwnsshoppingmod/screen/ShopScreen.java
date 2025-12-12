@@ -1,6 +1,8 @@
 package net.jwn.jwnsshoppingmod.screen;
 
 import net.jwn.jwnsshoppingmod.JWNsMod;
+import net.jwn.jwnsshoppingmod.networking.packet.BuyItemC2SPacket;
+import net.jwn.jwnsshoppingmod.networking.packet.EditCommentC2SPacket;
 import net.jwn.jwnsshoppingmod.shop.PlayerBlockTimerData;
 import net.jwn.jwnsshoppingmod.shop.ShopItem;
 import net.minecraft.client.Minecraft;
@@ -12,6 +14,8 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -24,6 +28,7 @@ public class ShopScreen extends Screen {
     private static final ResourceLocation ITEM_HIGHLIGHTED = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "shop_item_highlighted");
     private static final ResourceLocation BUY_BUTTON = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "buy_button");
     private static final ResourceLocation BUY_BUTTON_HIGHLIGHTED = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "buy_button_highlighted");
+    private static final ResourceLocation BUY_BUTTON_DISABLED = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "buy_button_disabled");
     private static final ResourceLocation PLUS_BUTTON = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "plus_button");
     private static final ResourceLocation PLUS_BUTTON_HIGHLIGHTED = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "plus_button_highlighted");
     private static final ResourceLocation MINUS_BUTTON = ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "minus_button");
@@ -38,12 +43,16 @@ public class ShopScreen extends Screen {
 
     private final int coin;
     private int tick;
+    private ShopItem selected;
+    private int totalCost;
 
     public ShopScreen(int coin, List<ShopItem> shopItems, int time) {
         super(Component.translatable("gui.jwnsshoppingmod.shop.title"));
         this.coin = coin;
         this.shopItems = shopItems;
         this.tick = PlayerBlockTimerData.RESET_TIMER - time;
+        this.selected = ShopItem.empty();
+        this.totalCost = 0;
         updateDisplayItems();
     }
 
@@ -74,24 +83,38 @@ public class ShopScreen extends Screen {
         displayShopItems.addAll(shopItems.subList(startIndex, end));
     }
 
+    ImageButton buyButton;
+
     @Override
     protected void init() {
         x = (this.width - DRAW_WIDTH) / 2;
         y = (this.height - DRAW_HEIGHT) / 2;
 
         for (int i = 0; i < 4; i ++) {
+            int finalI = i;
             addRenderableWidget(new ImageButton(
                     x + 8, y + 20 + i * 27, ITEM_WIDTH, ITEM_HEIGHT, new WidgetSprites(ITEM, ITEM_HIGHLIGHTED),
-                    button -> {}));
+                    button -> {
+                        selected = displayShopItems.get(finalI);
+                        count = 0;
+                    }));
         }
 
-        ImageButton buyButton = new ImageButton(
-                x + 108, y + 142, BUY_WIDTH, BUY_HEIGHT, new WidgetSprites(BUY_BUTTON, BUY_BUTTON_HIGHLIGHTED),
+        assert Minecraft.getInstance().player != null;
+        buyButton = new ImageButton(
+                x + 108, y + 142, BUY_WIDTH, BUY_HEIGHT, new WidgetSprites(BUY_BUTTON, BUY_BUTTON_DISABLED, BUY_BUTTON_HIGHLIGHTED),
                 button -> {
                     if (tick == 0) {
-                        assert Minecraft.getInstance().player != null;
                         Minecraft.getInstance().player.displayClientMessage(Component.translatable("gui.jwnsshoppingmod.shop.reopen"), false);
                         onClose();
+                    } else {
+                        if (!selected.item().equals(Items.AIR) && !(count == 0)) {
+                            BuyItemC2SPacket packet = new BuyItemC2SPacket(selected, count);
+                            ClientPacketDistributor.sendToServer(packet);
+                            Minecraft.getInstance().player.displayClientMessage(
+                                    Component.translatable("gui.jwnsshoppingmod.shop.buy", selected.item().getName().getString()), false);
+                            onClose();
+                        }
                     }
                 });
         addRenderableWidget(buyButton);
@@ -114,6 +137,8 @@ public class ShopScreen extends Screen {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         setFocused(null);
+        buyButton.active = !(count > selected.remaining()) && (coin >= totalCost);
+
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED, TEXTURE, x, y,
                 0.0F, 0.0F, DRAW_WIDTH, DRAW_HEIGHT,
@@ -132,24 +157,36 @@ public class ShopScreen extends Screen {
 //                graphics.renderTooltip(this.font, stack, mouseX, mouseY);
 //            }
             graphics.drawString(this.font, stack.getItemName(), x + 36, y + 23 + i * 27, 0xFF000000, false);
-            graphics.drawString(this.font, Component.literal("3/" + displayShopItems.get(i).maxPurchase()), x + 36, y + 33 + i * 27, 0xFF000000, false);
+            graphics.drawString(this.font, Component.literal(displayShopItems.get(i).remaining() + "/" + displayShopItems.get(i).maxPurchase()), x + 36, y + 33 + i * 27, 0xFF000000, false);
+            String text = displayShopItems.get(i).price() + Component.translatable("gui.jwnsshoppingmod.shop.coin").getString();
+            graphics.drawString(this.font, text, x + 120, y + 29 + i * 27, 0xFF000000, false);
         }
+
+        ItemStack stack = new ItemStack(selected.item(), selected.bundleSize());
+        graphics.renderItem(stack, x + 19, y + 131);
+        graphics.renderItemDecorations(this.font, stack, x + 19, y + 131);
 
         graphics.drawString(this.font, this.title, x + 8, y + 8, 0xFF000000, false);
 
         int totalSeconds = tick / 20;
         int minutes = totalSeconds / 60;
         int seconds = totalSeconds % 60;
-        String text1;
-        if (minutes > 0) {
-            text1 = String.format("%d분 %d초 후 상점 초기화", minutes, seconds);
-        } else {
-            text1 = String.format("%d초 후 상점 초기화", seconds);
-        }
-        graphics.drawString(this.font, Component.literal(text1), x + 60, y + 8, 0xFF000000, false);
 
-        String text = NumberFormat.getInstance(Locale.US).format(coin);
-        graphics.drawString(this.font, Component.literal(text), x + 68, y + 130, 0xFF000000, false);
+        Component text1;
+        if (minutes > 0) {
+            text1 = Component.translatable("gui.jwnsshoppingmod.shop.left_time_with_min", minutes, seconds);
+        } else {
+            text1 = Component.translatable("gui.jwnsshoppingmod.shop.left_time_without_min", seconds);
+        }
+        graphics.drawString(this.font, text1, x + 60, y + 8, 0xFF000000, false);
+
+        totalCost = selected.price() * count;
+        String text2 = NumberFormat.getInstance(Locale.US).format(totalCost) + Component.translatable("gui.jwnsshoppingmod.shop.coin").getString();
+        graphics.drawString(this.font, Component.literal(text2), x + 61, y + 147, 0xFF000000, false);
+
+        String text3 = NumberFormat.getInstance(Locale.US).format(coin);
+        graphics.drawString(this.font, text3, x + 68, y + 130, 0xFF000000, false);
+
         graphics.drawString(this.font, Component.literal(String.valueOf(count)), x + 27 - this.font.width(String.valueOf(count)) / 2, y + 150, 0xFF000000, false);
     }
 

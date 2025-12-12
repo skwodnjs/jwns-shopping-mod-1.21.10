@@ -4,6 +4,7 @@ package net.jwn.jwnsshoppingmod.networking;
 import net.jwn.jwnsshoppingmod.JWNsMod;
 import net.jwn.jwnsshoppingmod.networking.client.OpenProfileScreenS2CPacketHandler;
 import net.jwn.jwnsshoppingmod.networking.client.OpenShopScreensS2CPacketHandler;
+import net.jwn.jwnsshoppingmod.networking.packet.BuyItemC2SPacket;
 import net.jwn.jwnsshoppingmod.networking.packet.EditCommentC2SPacket;
 import net.jwn.jwnsshoppingmod.networking.packet.OpenProfileScreenS2CPacket;
 import net.jwn.jwnsshoppingmod.networking.packet.OpenShopScreenS2CPacket;
@@ -32,6 +33,11 @@ public class ModMessages {
                 EditCommentC2SPacket.TYPE,
                 EditCommentC2SPacket.STREAM_CODEC,
                 EditCommentC2SPacket::handle
+        );
+        registrar.playToServer(
+                BuyItemC2SPacket.TYPE,
+                BuyItemC2SPacket.STREAM_CODEC,
+                BuyItemC2SPacket::handle
         );
     }
 

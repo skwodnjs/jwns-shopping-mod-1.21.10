@@ -5,11 +5,17 @@
   "gui.jwnsshoppingmod.profile.minute": "분",
   "gui.jwnsshoppingmod.profile.hour": "시간",
   "gui.jwnsshoppingmod.shop.reopen": "상점 목록이 초기화되었습니다. 상점을 다시 열어주세요.",
+  "gui.jwnsshoppingmod.shop.coin": "코인",
+  "gui.jwnsshoppingmod.shop.left_time_with_min": "%d분 %d초 후 상점 초기화",
+  "gui.jwnsshoppingmod.shop.left_time_without_min": "%d초 후 상점 초기화",
+  "gui.jwnsshoppingmod.shop.no_count": "구매할 수량을 입력해주세요.",
+  "gui.jwnsshoppingmod.shop.buy": "%s 구매 완료",
 
   "jwnsshoppingmod.networking.open_shop_failed": "상점을 열 수 없습니다: %s",
   "jwnsshoppingmod.networking.open_profile_failed": "프로필을 열 수 없습니다: %s",
   "jwnsshoppingmod.networking.edit_profile_failed": "프로필을 수정할 수 없습니다: %s",
   "jwnsshoppingmod.networking.set_coin": "코인을 %d 으로 설정했습니다.",
   "jwnsshoppingmod.networking.add_coin": "코인을 %d 만큼 추가하였습니다.",
-  "jwnsshoppingmod.networking.get_coin": "현재 코인을 %d 만큼 보유하고 있습니다."
+  "jwnsshoppingmod.networking.get_coin": "현재 코인을 %d 만큼 보유하고 있습니다.",
+  "jwnsshoppingmod.networking.not_enough_slot": "인벤토리에 공간이 부족합니다. 인벤토리를 비운 뒤에 다시 시도해주세요."
 }

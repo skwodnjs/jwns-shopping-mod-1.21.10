@@ -43,7 +43,6 @@ public class OpenProfileCommand {
         if (isPlayerOnline) {
             ServerPlayer player = server.getPlayerList().getPlayerByName(name);
             PlayerCoinData coinData = PlayerCoinData.get(player.level());
-            assert player != null;
             packet = new OpenProfileScreenS2CPacket(
                     name, player.experienceLevel, data.getAlias(), coinData.getCoins(player), data.getTimeMillis(), true, data.getComment()
             );

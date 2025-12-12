@@ -12,12 +12,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record EditCommentC2SPacket(String name, String comment) implements CustomPacketPayload {
+public record EditCommentC2SPacket(String comment) implements CustomPacketPayload {
     public static final Type<EditCommentC2SPacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(JWNsMod.MOD_ID, "edit_comment_packet"));
 
     public static final StreamCodec<ByteBuf, EditCommentC2SPacket> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8, EditCommentC2SPacket::name,
             ByteBufCodecs.STRING_UTF8, EditCommentC2SPacket::comment,
             EditCommentC2SPacket::new
     );
@@ -30,14 +29,9 @@ public record EditCommentC2SPacket(String name, String comment) implements Custo
     public static void handle(final EditCommentC2SPacket data, final IPayloadContext context) {
         context.enqueueWork(() -> {
             if (!(context.player() instanceof ServerPlayer serverPlayer)) return;
-            ProfileData profileData = ProfileDataStorage.loadByPlayerName(serverPlayer.level().getServer(), data.name());
-
-            if (profileData == null) {
-                serverPlayer.sendSystemMessage(Component.literal("프로필이 없습니다."));
-            } else {
-                profileData.setComment(data.comment());
-            }
-
+            ProfileData profileData = ProfileDataStorage.loadByPlayerName(serverPlayer.level().getServer(), serverPlayer.getDisplayName().getString());
+            assert profileData != null;
+            profileData.setComment(data.comment());
             ProfileDataStorage.saveByPlayerName(serverPlayer.level().getServer(), serverPlayer.getDisplayName().getString(), profileData);
         }).exceptionally(e -> {
             context.disconnect(Component.translatable("jwnsshoppingmod.networking.edit_profile_failed", e.getMessage()));

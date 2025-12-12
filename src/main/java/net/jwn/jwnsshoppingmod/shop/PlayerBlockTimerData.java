@@ -6,6 +6,7 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
@@ -17,36 +18,36 @@ public class PlayerBlockTimerData extends SavedData {
 
     private static final List<ShopItem> SHOP_ITEMS = List.of(
             // 고가 / 희귀 자원
-            new ShopItem(Items.DIAMOND_BLOCK,   64, 50, 2),
-            new ShopItem(Items.EMERALD_BLOCK,   64, 50, 2),
-            new ShopItem(Items.AMETHYST_BLOCK,  64, 40, 3),
+            new ShopItem(Items.DIAMOND_BLOCK,   64, 50, 2, 2),
+            new ShopItem(Items.EMERALD_BLOCK,   64, 50, 2, 2),
+            new ShopItem(Items.AMETHYST_BLOCK,  64, 40, 3, 3),
 
             // 중상급 광물
-            new ShopItem(Items.GOLD_BLOCK,      64, 40, 3),
-            new ShopItem(Items.IRON_BLOCK,      64, 30, 5),
-            new ShopItem(Items.COPPER_BLOCK,    64, 20, 7),
+            new ShopItem(Items.GOLD_BLOCK,      64, 40, 3, 3),
+            new ShopItem(Items.IRON_BLOCK,      64, 30, 5, 5),
+            new ShopItem(Items.COPPER_BLOCK,    64, 20, 7, 7),
 
             // 중급 자원
-            new ShopItem(Items.LAPIS_BLOCK,     64, 30, 5),
-            new ShopItem(Items.REDSTONE_BLOCK,  64, 20, 7),
-            new ShopItem(Items.QUARTZ_BLOCK,    64, 20, 7),
+            new ShopItem(Items.LAPIS_BLOCK,     64, 30, 5, 5),
+            new ShopItem(Items.REDSTONE_BLOCK,  64, 20, 7, 7),
+            new ShopItem(Items.QUARTZ_BLOCK,    64, 20, 7, 7),
 
             // 연료 / 기본 자원
-            new ShopItem(Items.COAL_BLOCK,      64, 10, 9),
-            new ShopItem(Items.STONE,           64, 10, 9),
+            new ShopItem(Items.COAL_BLOCK,      64, 10, 9, 9),
+            new ShopItem(Items.STONE,           64, 10, 9, 9),
 
             // 목재류 (공급 많음)
-            new ShopItem(Items.OAK_LOG,          64, 10, 9),
-            new ShopItem(Items.SPRUCE_LOG,       64, 10, 9),
-            new ShopItem(Items.BIRCH_LOG,        64, 10, 9),
-            new ShopItem(Items.JUNGLE_LOG,       64, 10, 9),
-            new ShopItem(Items.ACACIA_LOG,       64, 10, 9),
-            new ShopItem(Items.DARK_OAK_LOG,     64, 10, 9),
-            new ShopItem(Items.MANGROVE_LOG,     64, 20, 7),
-            new ShopItem(Items.CHERRY_LOG,       64, 20, 7),
+            new ShopItem(Items.OAK_LOG,          64, 10, 9, 9),
+            new ShopItem(Items.SPRUCE_LOG,       64, 10, 9, 9),
+            new ShopItem(Items.BIRCH_LOG,        64, 10, 9, 9),
+            new ShopItem(Items.JUNGLE_LOG,       64, 10, 9, 9),
+            new ShopItem(Items.ACACIA_LOG,       64, 10, 9, 9),
+            new ShopItem(Items.DARK_OAK_LOG,     64, 10, 9, 9),
+            new ShopItem(Items.MANGROVE_LOG,     64, 20, 7, 7),
+            new ShopItem(Items.CHERRY_LOG,       64, 20, 7, 7),
 
             // 특수 자원
-            new ShopItem(Items.BAMBOO_BLOCK,    64, 20, 6)
+            new ShopItem(Items.BAMBOO_BLOCK,    64, 20, 6, 6)
     );
 
 
@@ -147,4 +148,15 @@ public class PlayerBlockTimerData extends SavedData {
         return List.of(e.item1, e.item2, e.item3, e.item4, e.item5);
     }
 
+    public void consumeShopItem(ServerPlayer player, Item targetItem, int amount) {
+        PlayerEntry entry = getOrCreateEntry(player);
+        List<ShopItem> items = List.of(entry.item1, entry.item2, entry.item3, entry.item4, entry.item5);
+        for (ShopItem item : items) {
+            if (item.item() == targetItem && item.remaining() >= amount) {
+                item.consume(amount);
+                setDirty();
+                return;
+            }
+        }
+    }
 }
